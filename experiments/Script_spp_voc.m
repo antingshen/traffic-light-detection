@@ -25,14 +25,14 @@ opts.spm_im_size            = [480 576 688 874 1200];
 
 % for finetune
 opts.flip_finetune          = true;
-opts.finetune_cache_name    = 'Zeiler_conv5_ft(5s_flip)';
+opts.finetune_cache_name    = 'logos';
 opts.finetune_rst_dir       = fullfile(pwd, 'finetuning', opts.finetune_cache_name);
 opts.finetune_net_def_file  = fullfile(pwd, 'model-defs/pascal_finetune_fc_spm_solver_new.prototxt');
 
 % for svm train and test
 opts.layer                  = 7;
-opts.flip                   = false;
-opts.cache_name             = 'Zeiler_conv5_ft(5s_flip)_fc7';
+opts.flip                   = true;
+opts.cache_name             = 'logos';
 
 % change to point to your VOCdevkit install
 opts.devkit                 = './../VOCdevkitLOGO';
@@ -49,7 +49,7 @@ opts.imdb_for_negative_mining = [1];
 opts.neg_ovr_threshs        = {[-1, 0.3]};
 
 % test set
-opts.imdb_test              = imdb_from_voc(opts.devkit, 'test', '2007');
+opts.imdb_test              = imdb_from_voc(opts.devkit, 'test', 'logo');
 opts.roidb_test             = opts.imdb_test.roidb_func(opts.imdb_test, opts.with_hard_samples, opts.with_selective_search, opts.with_edge_box);
 opts.feat_cache_test        = opts.feat_cache;
 
@@ -59,17 +59,18 @@ opts.gpu_id                 = 1;
 % ------------------------------------------------
 g = gpuDevice(opts.gpu_id);
 % 
-%% extract last conv feature
-opts = perpare_train_data(opts, opts.flip | opts.flip_finetune);
-spp_exp_cache_features_voc('trainval', opts);
-spp_exp_cache_features_voc('test', opts);
+% extract last conv feature
+% opts = perpare_train_data(opts, opts.flip | opts.flip_finetune);
+% spp_exp_cache_features_voc('trainval', opts);
+% spp_exp_cache_features_voc('test', opts);
 
 %% finetune fc layers and change model to finetuned one
 opts = perpare_train_data(opts, opts.flip_finetune);
 [~, ~, test_net_file, opts.max_iter] = parse_copy_finetune_prototxt(opts.finetune_net_def_file, opts.finetune_rst_dir);
-finetuned_model_path = spp_finetune_voc(opts);                                % finetune
-% finetuned_model_path = fullfile(opts.finetune_rst_dir, 'FT_iter_34000');       % load from finetuned file
-opts.net_file        = finetuned_model_path;
+%finetuned_model_path = spp_finetune_voc(opts);                                % finetune
+%finetuned_model_path = fullfile(opts.finetune_rst_dir, 'FT_iter_84000');       % load from finetuned file
+finetuned_model_path = './flickrlogos.caffemodel';
+% opts.net_file        = finetuned_model_path;
 opts.net_def_file    = fullfile(opts.finetune_rst_dir, test_net_file);
 % 
 
@@ -79,7 +80,7 @@ spp_exp_train_and_test_voc(opts);
 
 
 %% box regression
-spp_exp_bbox_reg_train_and_test_voc(opts);
+% spp_exp_bbox_reg_train_and_test_voc(opts);
 
 reset(g);
 

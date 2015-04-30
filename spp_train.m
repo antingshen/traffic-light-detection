@@ -121,6 +121,9 @@ end
 % Init training caches
 caches = cell(1, length(imdb{1}.class_ids));
 for i = imdb{1}.class_ids
+  if strcmp(imdb{1}.classes{i}, 'no-logo')
+    continue
+  end
   fprintf('%14s has %6d positive instances\n', ...
       imdb{1}.classes{i}, size(X_pos{i},2));
   X_pos{i} = spp_poolX_to_fcX(X_pos{i}, opts.layer, spp_model, conf.use_gpu);
@@ -155,6 +158,9 @@ for hard_epoch = 1:max_hard_epochs
         % Add sampled negatives to each classes training cache, removing
         % duplicates
         for j = imdb{idb}.class_ids
+          if strcmp(imdb{idb}.classes{j}, 'no-logo')
+            continue
+          end
           if ~isempty(keys{j})
             if ~isempty(caches{j}.keys_neg)
               [~, ~, dups] = intersect(caches{j}.keys_neg, keys{j}, 'rows');
@@ -263,6 +269,12 @@ dedup = true;
     imdb.name, imdb.image_ids{ind}, d.boxes, false, dedup);
 
 class_ids = imdb.class_ids;
+for i = class_ids
+    if strcmp(imdb.classes{i}, 'no-logo')
+        class_ids(i) = [];
+        break;
+    end
+end
 
 if isempty(d.feat)
   X_neg = cell(max(class_ids), 1);

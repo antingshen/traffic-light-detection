@@ -87,6 +87,9 @@ models = cell(num_clss, 1);
 for i = 1:num_clss
   fprintf('Training regressors for class %s (%d/%d)\n', ...
       spp_model.classes{i}, i, num_clss);
+  if strcmp(spp_model.classe{i}, 'no-logo')
+      continue
+  end
   I = find(O > opts.min_overlap & C == i);
   Xi = X(:, I); 
   if opts.binarize

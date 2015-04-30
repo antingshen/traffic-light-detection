@@ -41,7 +41,10 @@ cache_file_eb = [];
 if with_selective_search 
     cache_file_ss = 'ss_';
     if~exist(regions_file_ss, 'file')
-        error('roidb_from_ilsvrc:: cannot find %s', regions_file_ss);
+        disp(strcat('No selective search boxes found at ', regions_file_ss, '. Generating...'));
+        boxes = op_selective_search_boxes(1, length(imdb.image_ids), imdb);
+        images = imdb.image_ids;
+        save(regions_file_ss, 'boxes', 'images');
     end
 end
 
@@ -94,11 +97,7 @@ catch
   else
       for i = 1:length(imdb.image_ids)/2
         tic_toc_print('roidb (%s): %d/%d\n', roidb.name, i, length(imdb.image_ids)/2);
-        try
-          voc_rec = PASreadrecord(sprintf(VOCopts.annopath, imdb.image_ids{i*2-1}));
-        catch
-          voc_rec = [];
-        end
+        voc_rec = PASreadrecord(sprintf(VOCopts.annopath, imdb.image_ids{i*2-1}));
         [~, image_name1] = fileparts(imdb.image_ids{i*2-1});
         [~, image_name2] = fileparts(regions.images{i});
         assert(strcmp(image_name1, image_name2));

@@ -20,7 +20,7 @@ vstep_size: 30000
 # Display every 100 iterations
 display: 20
 # The maximum number of iterations
-max_iter: 200000
+max_iter: 100000
 # snapshot intermediate results
 snapshot: 0
 snapshot_prefix: "pascal_finetune_fc_spm"
